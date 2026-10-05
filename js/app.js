@@ -44,7 +44,45 @@ auth.onAuthStateChanged((user) => {
  * DẤU NHỚ - Core Application Engine
  * Quản lý: State, Leaflet Map, Quiz, Audio & Mock Firestore Storage
  */
-
+// ĐẶT VÀO ĐÂY:
+const TRANSLATIONS = {
+  vi: {
+    lang_btn: "VI / EN",
+    nav_home: "Trang chủ",
+    nav_explore: "Khám phá",
+    nav_story: "Câu chuyện",
+    nav_learn: "Học lịch sử",
+    nav_journey: "Hành trình của tôi",
+    hero_desc: "Mỗi địa điểm một câu chuyện.<br>Mỗi câu chuyện một ký ức.",
+    btn_explore_map: "<span>🗺️</span> Khám phá bản đồ",
+    btn_explore_stories: "<span>📖</span> Khám phá câu chuyện",
+    home_title: "📍 Những câu chuyện quanh bạn",
+    home_sub: "Những ký ức hào hùng và thiêng liêng ngay tại Sài Gòn — TP.HCM",
+    view_story: "Xem câu chuyện →",
+    listen_story: "Nghe câu chuyện",
+    audio_playing: "Đang phát audio giọng đọc truyền cảm...",
+    why_remember: "Vì sao chúng ta nhớ?",
+    quiz_cta: "🎒 Tham gia thử thách Quiz nhận Memory Points →"
+  },
+  en: {
+    lang_btn: "EN / VI",
+    nav_home: "Home",
+    nav_explore: "Explore",
+    nav_story: "Story",
+    nav_learn: "Learn history",
+    nav_journey: "My journey",
+    hero_desc: "Every place a story.<br>Every story a memory.",
+    btn_explore_map: "<span>🗺️</span> Explore map",
+    btn_explore_stories: "<span>📖</span> Discover stories",
+    home_title: "📍 Stories Around You",
+    home_sub: "Sacred and heroic memories in the heart of Saigon — Ho Chi Minh City",
+    view_story: "Read story →",
+    listen_story: "Listen to story",
+    audio_playing: "Playing audio narration...",
+    why_remember: "Why do we remember?",
+    quiz_cta: "🎒 Take history quiz to earn Memory Points →"
+  }
+};
 // 1. DỮ LIỆU ĐỊA ĐIỂM (MOCK DATA CỦA SÀI GÒN - TP.HCM)
 const PLACES_DATA = [
   {
@@ -131,6 +169,7 @@ const QUIZ_DATA = {
 // 3. KHỞI TẠO ỨNG DỤNG
 class DauNhoApp {
   constructor() {
+    this.currentLang = localStorage.getItem("daunho_lang") || "vi";
     this.map = null;
     this.markers = [];
     this.currentStory = PLACES_DATA[0];
@@ -154,6 +193,7 @@ class DauNhoApp {
 
   init() {
     this.loadStateFromStorage();
+    this.updateLanguageUI();
     this.renderHomeCards();
     this.renderSidebarPlaces(PLACES_DATA);
     this.renderStoryView(this.currentStory);
@@ -215,7 +255,8 @@ class DauNhoApp {
   renderHomeCards() {
     const container = document.getElementById("homePlacesList");
     if (!container) return;
-
+    const isEn = this.currentLang === 'en';
+    const dict = TRANSLATIONS[this.currentLang];
     container.innerHTML = PLACES_DATA.map(place => `
       <div class="card-item">
         <div class="card-img-wrap">
@@ -584,7 +625,29 @@ class DauNhoApp {
       `;
     }).join("");
   }
+// Đổi qua lại giữa VI và EN
+  toggleLanguage() {
+    this.currentLang = this.currentLang === "vi" ? "en" : "vi";
+    localStorage.setItem("daunho_lang", this.currentLang);
+    this.updateLanguageUI();
+    this.renderHomeCards();
+    this.renderStoryView(this.currentStory);
+  }
 
+  // Quét các thẻ có data-i18n và thay chữ tương ứng
+  updateLanguageUI() {
+    const dict = TRANSLATIONS[this.currentLang];
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      if (dict[key]) {
+        el.innerHTML = dict[key];
+      }
+    });
+    const langBtn = document.getElementById("langToggle");
+    if (langBtn) {
+      langBtn.textContent = dict.lang_btn;
+    }
+  }
  // --- AUTHENTICATION VỚI FIREBASE ---
   openLoginModal() {
     document.getElementById("loginModal").classList.add("open");
