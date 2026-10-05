@@ -26,17 +26,17 @@
       </div>
 
       <nav class="nav-links">
-        <button class="nav-btn active" data-page="home" onclick="app.navigate('home')">Trang chủ</button>
-        <button class="nav-btn" data-page="explore" onclick="app.navigate('explore')">Khám phá</button>
-        <button class="nav-btn" data-page="story" onclick="app.openDefaultStory()">Câu chuyện</button>
-        <button class="nav-btn" data-page="learn" onclick="app.navigate('learn')">Học lịch sử</button>
-        <button class="nav-btn" data-page="journey" onclick="app.navigate('journey')">Hành trình của tôi</button>
+        <button class="nav-btn active" data-page="home" data-i18n="nav_home" onclick="app.navigate('home')">Trang chủ</button>
+        <button class="nav-btn" data-page="explore" data-i18n="nav_explore" onclick="app.navigate('explore')">Khám phá</button>
+        <button class="nav-btn" data-page="story" data-i18n="nav_story" onclick="app.openDefaultStory()">Câu chuyện</button>
+        <button class="nav-btn" data-page="learn" data-i18n="nav_learn" onclick="app.navigate('learn')">Học lịch sử</button>
+        <button class="nav-btn" data-page="journey" data-i18n="nav_journey" onclick="app.navigate('journey')">Hành trình của tôi</button>
       </nav>
 
       <div class="nav-actions">
-        <button class="lang-switch" id="langToggle">VI / EN</button>
+<button class="lang-switch" id="langToggle" onclick="app.toggleLanguage()">VI / EN</button>
         <div class="points-badge" title="Memory Points">
-          ⭐ <span id="navMemoryPoints">120</span>
+          ⭐ <span id="navMemoryPoints">50</span>
         </div>
         <button class="btn btn-outline-sm" id="authBtn" onclick="app.openLoginModal()">Đăng nhập</button>
       </div>
@@ -53,15 +53,15 @@
         <div class="hero-content">
           <span class="hero-tagline">Stories Behind the Places</span>
           <h1 class="hero-title">DẤU NHỚ</h1>
-          <p class="hero-desc">
+          <p class="hero-desc" data-i18n="hero_desc">
             Mỗi địa điểm một câu chuyện.<br>
             Mỗi câu chuyện một ký ức.
           </p>
           <div class="hero-cta-group">
-            <button class="btn btn-primary" onclick="app.navigate('explore')">
+            <button class="btn btn-primary" data-i18n="btn_explore_map" onclick="app.navigate('explore')">
               <span>🗺️</span> Khám phá bản đồ
             </button>
-            <button class="btn btn-secondary" onclick="app.openStory('dia-dao-cu-chi')">
+            <button class="btn btn-secondary" data-i18n="btn_explore_stories" onclick="app.openStory('dia-dao-cu-chi')">
               <span>📖</span> Khám phá câu chuyện
             </button>
           </div>
@@ -71,8 +71,8 @@
       <div class="section-container">
         <div class="section-header">
           <div>
-            <h2 class="section-title">📍 Những câu chuyện quanh bạn</h2>
-            <p class="section-sub">Những ký ức hào hùng và thiêng liêng ngay tại Sài Gòn — TP.HCM</p>
+            <h2 class="section-title" data-i18n="home_title">📍 Những câu chuyện quanh bạn</h2>
+            <p class="section-sub" data-i18n="home_sub">Những ký ức hào hùng và thiêng liêng ngay tại Sài Gòn — TP.HCM</p>
           </div>
         </div>
         <div class="cards-grid" id="homePlacesList">
