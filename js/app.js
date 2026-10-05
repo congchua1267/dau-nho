@@ -626,26 +626,31 @@ class DauNhoApp {
     }).join("");
   }
 // Đổi qua lại giữa VI và EN
-  toggleLanguage() {
-    this.currentLang = this.currentLang === "vi" ? "en" : "vi";
-    localStorage.setItem("daunho_lang", this.currentLang);
+ setLanguage(lang) {
+    this.currentLang = lang;
+    localStorage.setItem("daunho_lang", lang);
     this.updateLanguageUI();
     this.renderHomeCards();
+    this.renderSidebarPlaces(PLACES_DATA);
     this.renderStoryView(this.currentStory);
   }
 
   // Quét các thẻ có data-i18n và thay chữ tương ứng
   updateLanguageUI() {
     const dict = TRANSLATIONS[this.currentLang];
+    
+    // Đổi văn bản tĩnh có gắn data-i18n
     document.querySelectorAll("[data-i18n]").forEach(el => {
       const key = el.getAttribute("data-i18n");
-      if (dict[key]) {
+      if (dict && dict[key]) {
         el.innerHTML = dict[key];
       }
     });
-    const langBtn = document.getElementById("langToggle");
-    if (langBtn) {
-      langBtn.textContent = dict.lang_btn;
+    const btnVi = document.getElementById("btnLangVi");
+    const btnEn = document.getElementById("btnLangEn");
+    if (btnVi && btnEn) {
+      btnVi.classList.toggle("active", this.currentLang === "vi");
+      btnEn.classList.toggle("active", this.currentLang === "en");
     }
   }
  // --- AUTHENTICATION VỚI FIREBASE ---
