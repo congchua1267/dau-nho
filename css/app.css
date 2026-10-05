@@ -198,14 +198,42 @@ h1, h2, h3, .font-serif {
   color: var(--color-primary);
 }
 
-.lang-switch {
+/* ================= NÚT CHUYỂN ĐỔI NGÔN NGỮ ================= */
+.lang-switch-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.lang-btn {
   background: none;
   border: none;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--color-muted);
   cursor: pointer;
-  padding: 4px 6px;
+  padding: 2px 4px;
+  color: var(--color-muted);
+  transition: all 0.2s;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.lang-btn:hover {
+  color: var(--color-primary);
+}
+
+.lang-btn.active {
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lang-divider {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  user-select: none;
 }
 
 /* ================= PAGE VIEWS ROUTING ================= */
