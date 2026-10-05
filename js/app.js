@@ -1,12 +1,11 @@
 // 1. Cấu hình Firebase lấy chính xác từ ảnh của bạn
 const firebaseConfig = {
-  apiKey: "AIzaSyAiVymz9FyXncHUPna2BAkC7NGI-2pNTaA",
-  authDomain: "vloop-4ac54.firebaseapp.com",
-  projectId: "vloop-4ac54",
-  storageBucket: "vloop-4ac54.firebasestorage.app",
-  messagingSenderId: "573475272736",
-  appId: "1:573475272736:web:d33fd8ef3fbb3459942445",
-  measurementId: "G-4PK6LGR06H"
+  apiKey: "AIzaSyAhjGMesRZV4DGxxjx1bAHfYOeNYEatXmI",
+  authDomain: "dau-nho.firebaseapp.com",
+  projectId: "dau-nho",
+  storageBucket: "dau-nho.firebasestorage.app",
+  messagingSenderId: "371526212557",
+  appId: "1:371526212557:web:9470dcc2a9047053850284"
 };
 
 // Khởi tạo Firebase
