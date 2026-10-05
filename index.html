@@ -34,7 +34,11 @@
       </nav>
 
       <div class="nav-actions">
-<button class="lang-switch" id="langToggle" onclick="app.toggleLanguage()">VI / EN</button>
+<div class="lang-switch-group">
+  <button type="button" class="lang-btn active" id="btnLangVi" onclick="app.setLanguage('vi')">VI</button>
+  <span class="lang-divider">/</span>
+  <button type="button" class="lang-btn" id="btnLangEn" onclick="app.setLanguage('en')">EN</button>
+</div>        
         <div class="points-badge" title="Memory Points">
           ⭐ <span id="navMemoryPoints">50</span>
         </div>
