@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DẤU NHỚ — Stories Behind the Places</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS (Bản đồ tương tác) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+  <!-- ================= TOP NAVBAR ================= -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo" onclick="app.navigate('home')">
+        <span class="logo-leaf">🌿</span>
+        <span class="logo-text">Dấu Nhớ</span>
+      </div>
+
+      <nav class="nav-links">
+        <button class="nav-btn active" data-page="home" onclick="app.navigate('home')">Trang chủ</button>
+        <button class="nav-btn" data-page="explore" onclick="app.navigate('explore')">Khám phá</button>
+        <button class="nav-btn" data-page="story" onclick="app.openDefaultStory()">Câu chuyện</button>
+        <button class="nav-btn" data-page="learn" onclick="app.navigate('learn')">Học lịch sử</button>
+        <button class="nav-btn" data-page="journey" onclick="app.navigate('journey')">Hành trình của tôi</button>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="lang-switch" id="langToggle">VI / EN</button>
+        <div class="points-badge" title="Memory Points">
+          ⭐ <span id="navMemoryPoints">120</span>
+        </div>
+        <button class="btn btn-outline-sm" id="authBtn" onclick="app.openLoginModal()">Đăng nhập</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main id="appContent">
+
+    <!-- 1. TRANG CHỦ -->
+    <section id="page-home" class="page-view active">
+      <div class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <span class="hero-tagline">Stories Behind the Places</span>
+          <h1 class="hero-title">DẤU NHỚ</h1>
+          <p class="hero-desc">
+            Mỗi địa điểm một câu chuyện.<br>
+            Mỗi câu chuyện một ký ức.
+          </p>
+          <div class="hero-cta-group">
+            <button class="btn btn-primary" onclick="app.navigate('explore')">
+              <span>🗺️</span> Khám phá bản đồ
+            </button>
+            <button class="btn btn-secondary" onclick="app.openStory('dia-dao-cu-chi')">
+              <span>📖</span> Khám phá câu chuyện
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">📍 Những câu chuyện quanh bạn</h2>
+            <p class="section-sub">Những ký ức hào hùng và thiêng liêng ngay tại Sài Gòn — TP.HCM</p>
+          </div>
+        </div>
+        <div class="cards-grid" id="homePlacesList">
+          <!-- Render tự động từ JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. KHÁM PHÁ (BẢN ĐỒ + BỘ LỌC) -->
+    <section id="page-explore" class="page-view">
+      <div class="explore-layout">
+        <aside class="explore-sidebar">
+          <div class="sidebar-header">
+            <h3>BỘ LỌC ĐỊA ĐIỂM</h3>
+            <p>Tìm kiếm và khám phá các ký ức lịch sử</p>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Khu vực</label>
+            <select id="areaFilter" class="form-select" onchange="app.applyFilters()">
+              <option value="all">Tất cả khu vực</option>
+              <option value="Quận 1">Quận 1</option>
+              <option value="Quận 3">Quận 3</option>
+              <option value="Củ Chi">Củ Chi</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Chủ đề</label>
+            <div class="checkbox-list">
+              <label class="checkbox-item"><input type="checkbox" value="Tất cả" checked onchange="app.handleCategoryCheck(this)"> <span>Tất cả</span></label>
+              <label class="checkbox-item"><input type="checkbox" value="Chiến tranh" onchange="app.handleCategoryCheck(this)"> <span>Chiến tranh</span></label>
+              <label class="checkbox-item"><input type="checkbox" value="Di tích" onchange="app.handleCategoryCheck(this)"> <span>Di tích</span></label>
+              <label class="checkbox-item"><input type="checkbox" value="Tưởng niệm" onchange="app.handleCategoryCheck(this)"> <span>Tưởng niệm</span></label>
+              <label class="checkbox-item"><input type="checkbox" value="Nhân vật" onchange="app.handleCategoryCheck(this)"> <span>Nhân vật</span></label>
+            </div>
+          </div>
+
+          <div class="sidebar-list-container">
+            <label class="filter-label">Danh sách địa điểm (<span id="placeCount">0</span>)</label>
+            <div class="sidebar-places" id="sidebarPlaces">
+              <!-- Render card nhỏ từ JS -->
+            </div>
+          </div>
+        </aside>
+
+        <div class="explore-map-container">
+          <div id="map"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. TRANG CHI TIẾT CÂU CHUYỆN -->
+    <section id="page-story" class="page-view">
+      <div id="storyContainer">
+        <!-- Render nội dung Story chi tiết từ JS -->
+      </div>
+    </section>
+
+    <!-- 4. HỌC LỊCH SỬ (QUIZ) -->
+    <section id="page-learn" class="page-view">
+      <div class="section-container learn-container">
+        <div class="learn-header text-center">
+          <span class="learn-badge">Khám phá → Trải nghiệm → Ghi nhớ</span>
+          <h2 class="section-title">Học lịch sử theo cách khác</h2>
+          <p class="section-sub">Không học vẹt. Đọc câu chuyện, trả lời trắc nghiệm thực tế và tích lũy Memory Points.</p>
+        </div>
+
+        <div class="topics-pills">
+          <button class="pill active">🇻🇳 Lịch sử Việt Nam</button>
+          <button class="pill">📍 Địa điểm</button>
+          <button class="pill">👤 Nhân vật</button>
+          <button class="pill">⚔️ Sự kiện</button>
+        </div>
+
+        <div class="quiz-card-box" id="quizBox">
+          <!-- Trạng thái Quiz render tại đây -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. HÀNH TRÌNH CỦA TÔI -->
+    <section id="page-journey" class="page-view">
+      <div class="section-container">
+        <div class="profile-card">
+          <div class="profile-avatar">👤</div>
+          <div class="profile-info">
+            <h2 id="userNameDisplay">Nguyễn Minh Anh</h2>
+            <p id="userEmailDisplay">minhanh@email.com</p>
+            <span class="badge-role">Nhà Khám Phá Di Sản</span>
+          </div>
+          <div class="profile-points">
+            <div class="points-num" id="journeyPoints">120</div>
+            <div class="points-text">Memory Points</div>
+          </div>
+        </div>
+
+        <!-- 4 Khối thống kê -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📍</div>
+            <div class="stat-value" id="statExplored">1</div>
+            <div class="stat-label">Địa điểm đã khám phá</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📖</div>
+            <div class="stat-value" id="statRead">3</div>
+            <div class="stat-label">Câu chuyện đã đọc</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🎧</div>
+            <div class="stat-value" id="statAudio">1</div>
+            <div class="stat-label">Audio đã nghe</div>
+          </div>
+          <div class="stat-card highlight">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value" id="statMemoryPoints">120</div>
+            <div class="stat-label">Memory Points</div>
+          </div>
+        </div>
+
+        <div class="journey-columns">
+          <div class="journey-col">
+            <h3 class="col-title">📍 Địa điểm đã lưu</h3>
+            <div class="saved-list" id="savedPlacesList">
+              <!-- Render danh sách đã bookmark -->
+            </div>
+          </div>
+          <div class="journey-col">
+            <h3 class="col-title">⏱️ Hành trình gần đây</h3>
+            <div class="timeline" id="timelineList">
+              <!-- Render dòng thời gian khám phá -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+<!-- ================= FOOTER (CHÂN TRANG) ================= -->
+  <footer class="footer">
+    <div class="footer-container">
+      
+      <!-- Cột 1: Giới thiệu & Slogan -->
+      <div class="footer-col footer-about">
+        <div class="footer-logo" onclick="app.navigate('home')">
+          <span class="logo-leaf">🌿</span>
+          <span class="logo-text">Dấu Nhớ</span>
+        </div>
+        <p class="footer-tagline">Stories Behind the Places</p>
+        <p class="footer-desc">
+          Mỗi địa điểm một câu chuyện. Mỗi câu chuyện một ký ức. Dự án số hóa và lan tỏa di sản văn hóa, lịch sử Việt Nam qua lăng kính công nghệ hiện đại.
+        </p>
+        <div class="footer-socials">
+          <a href="#" title="Facebook" class="social-link">FB</a>
+          <a href="#" title="TikTok" class="social-link">TT</a>
+          <a href="#" title="YouTube" class="social-link">YT</a>
+          <a href="#" title="Instagram" class="social-link">IG</a>
+        </div>
+      </div>
+
+      <!-- Cột 2: Điều hướng nhanh -->
+      <div class="footer-col">
+        <h4 class="footer-heading">Khám phá</h4>
+        <ul class="footer-links">
+          <li><a href="#" onclick="app.navigate('home'); return false;">Trang chủ</a></li>
+          <li><a href="#" onclick="app.navigate('explore'); return false;">Bản đồ di tích</a></li>
+          <li><a href="#" onclick="app.openDefaultStory(); return false;">Câu chuyện tiêu biểu</a></li>
+          <li><a href="#" onclick="app.navigate('learn'); return false;">Học lịch sử & Quiz</a></li>
+          <li><a href="#" onclick="app.navigate('journey'); return false;">Hành trình của tôi</a></li>
+        </ul>
+      </div>
+
+      <!-- Cột 3: Chủ đề nổi bật -->
+      <div class="footer-col">
+        <h4 class="footer-heading">Chủ đề</h4>
+        <ul class="footer-links">
+          <li><a href="#" onclick="app.navigate('explore'); return false;">Địa đạo & Căn cứ bí mật</a></li>
+          <li><a href="#" onclick="app.navigate('explore'); return false;">Dinh thự & Di tích lịch sử</a></li>
+          <li><a href="#" onclick="app.navigate('explore'); return false;">Bảo tàng & Chứng tích</a></li>
+          <li><a href="#" onclick="app.navigate('explore'); return false;">Nhân vật lịch sử</a></li>
+          <li><a href="#" onclick="app.navigate('explore'); return false;">Sự kiện 30/4 giải phóng</a></li>
+        </ul>
+      </div>
+
+      <!-- Cột 4: Đăng ký nhận ký ức & Bản tin -->
+      <div class="footer-col">
+        <h4 class="footer-heading">Bản tin Dấu Nhớ</h4>
+        <p class="footer-newsletter-desc">
+          Nhận thông báo khi có câu chuyện di sản mới và sự kiện giao lưu văn hóa mỗi tuần.
+        </p>
+        <form class="footer-form" onsubmit="event.preventDefault(); alert('Cảm ơn bạn đã đăng ký nhận bản tin Dấu Nhớ!'); this.reset();">
+          <input type="email" placeholder="Nhập email của bạn..." required class="footer-input">
+          <button type="submit" class="btn btn-gold btn-block">Đăng ký</button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Dòng bản quyền & pháp lý dưới đáy -->
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <p>© 2026 Dấu Nhớ. Gìn giữ và lan tỏa ký ức dân tộc.</p>
+        <div class="footer-bottom-links">
+          <a href="#">Điều khoản sử dụng</a>
+          <span>•</span>
+          <a href="#">Chính sách bảo mật</a>
+          <span>•</span>
+          <a href="#">Đóng góp tư liệu</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  </main>
+
+  <!-- ================= MODAL ĐĂNG NHẬP ================= -->
+  <div class="modal-backdrop" id="loginModal">
+    <div class="modal-card">
+      <button class="modal-close" onclick="app.closeLoginModal()">&times;</button>
+      <div class="modal-header">
+        <h2 class="modal-logo">DẤU NHỚ</h2>
+        <p class="modal-sub">Đăng nhập để lưu hành trình khám phá và tích lũy Memory Points của bạn.</p>
+      </div>
+      <form class="modal-form" onsubmit="app.handleLogin(event)">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" required placeholder="nhapemail@example.com" value="minhanh@email.com" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Mật khẩu</label>
+          <input type="password" id="loginPass" required placeholder="••••••••" value="123456" class="form-input">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
+      </form>
+
+      <div class="modal-divider"><span>hoặc</span></div>
+
+      <button class="btn btn-google btn-block" onclick="app.handleGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.347 2.825.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg>
+        Tiếp tục với Google
+      </button>
+
+      <p class="modal-footer-note">
+        Chưa có tài khoản? <a href="#" onclick="alert('Tính năng đăng ký đang mở công khai bằng nút đăng nhập trên!'); return false;">Đăng ký ngay</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ================= MOBILE BOTTOM NAVIGATION ================= -->
+  <nav class="mobile-bottom-nav">
+    <button class="bottom-nav-item active" data-page="home" onclick="app.navigate('home')">
+      <span class="b-icon">🏠</span>
+      <span class="b-label">Trang chủ</span>
+    </button>
+    <button class="bottom-nav-item" data-page="explore" onclick="app.navigate('explore')">
+      <span class="b-icon">🗺️</span>
+      <span class="b-label">Khám phá</span>
+    </button>
+    <button class="bottom-nav-item" data-page="story" onclick="app.openDefaultStory()">
+      <span class="b-icon">📖</span>
+      <span class="b-label">Câu chuyện</span>
+    </button>
+    <button class="bottom-nav-item" data-page="learn" onclick="app.navigate('learn')">
+      <span class="b-icon">🎒</span>
+      <span class="b-label">Học</span>
+    </button>
+    <button class="bottom-nav-item" data-page="journey" onclick="app.navigate('journey')">
+      <span class="b-icon">👤</span>
+      <span class="b-label">Tôi</span>
+    </button>
+  </nav>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
