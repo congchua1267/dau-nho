@@ -1,3 +1,43 @@
+// 1. Cấu hình Firebase lấy chính xác từ ảnh của bạn
+const firebaseConfig = {
+  apiKey: "AIzaSyAiVymz9FyXncHUPna2BAkC7NGI-2pNTaA",
+  authDomain: "vloop-4ac54.firebaseapp.com",
+  projectId: "vloop-4ac54",
+  storageBucket: "vloop-4ac54.firebasestorage.app",
+  messagingSenderId: "573475272736",
+  appId: "1:573475272736:web:d33fd8ef3fbb3459942445",
+  measurementId: "G-4PK6LGR06H"
+};
+
+// Khởi tạo Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// 2. Theo dõi trạng thái đăng nhập tự động
+auth.onAuthStateChanged((user) => {
+  const authBtn = document.getElementById("authBtn");
+  const userNameDisplay = document.getElementById("userNameDisplay");
+  const userEmailDisplay = document.getElementById("userEmailDisplay");
+
+  if (user) {
+    // Người dùng đã đăng nhập
+    const displayName = user.displayName || user.email.split('@')[0];
+    if (authBtn) {
+      authBtn.textContent = "Đăng xuất";
+      authBtn.onclick = () => app.handleLogout();
+    }
+    if (userNameDisplay) userNameDisplay.textContent = displayName;
+    if (userEmailDisplay) userEmailDisplay.textContent = user.email;
+  } else {
+    // Chưa đăng nhập
+    if (authBtn) {
+      authBtn.textContent = "Đăng nhập";
+      authBtn.onclick = () => app.openLoginModal();
+    }
+    if (userNameDisplay) userNameDisplay.textContent = "Khách ghé thăm";
+    if (userEmailDisplay) userEmailDisplay.textContent = "Chưa đăng nhập";
+  }
+});
 /**
  * DẤU NHỚ - Core Application Engine
  * Quản lý: State, Leaflet Map, Quiz, Audio & Mock Firestore Storage
@@ -543,32 +583,75 @@ class DauNhoApp {
     }).join("");
   }
 
-  // Authentication Mock
+ // --- AUTHENTICATION VỚI FIREBASE ---
   openLoginModal() {
     document.getElementById("loginModal").classList.add("open");
   }
+
   closeLoginModal() {
     document.getElementById("loginModal").classList.remove("open");
   }
+
+  // Đăng nhập hoặc tạo tài khoản mới + Gửi mail xác thực
   handleLogin(e) {
     e.preventDefault();
-    const email = document.getElementById("loginEmail").value;
-    this.user.email = email;
-    this.user.name = email.split('@')[0];
-    this.saveStateToStorage();
-    this.closeLoginModal();
-    document.getElementById("userNameDisplay").textContent = this.user.name;
-    document.getElementById("userEmailDisplay").textContent = this.user.email;
-    alert(`Chào mừng ${this.user.name} đã quay trở lại với Dấu Nhớ!`);
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPass").value;
+
+    auth.signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        this.closeLoginModal();
+        if (!user.emailVerified) {
+          alert("Đăng nhập thành công! \nLưu ý: Email của bạn chưa xác thực, vui lòng kiểm tra hộp thư đến (hoặc Spam) để nhấn link kích hoạt.");
+        } else {
+          alert(`Chào mừng ${user.displayName || user.email} đã quay trở lại!`);
+        }
+      })
+      .catch((error) => {
+        // Nếu tài khoản chưa có, tự động đăng ký và gửi link xác thực về hòm thư
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+          auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+              const newUser = userCredential.user;
+              return newUser.sendEmailVerification().then(() => {
+                this.closeLoginModal();
+                alert(`Tài khoản mới đã được tạo thành công! \nHệ thống đã gửi link xác thực tới email: ${email}. Hãy kiểm tra hòm thư để kích hoạt nhé.`);
+              });
+            })
+            .catch((regError) => {
+              alert("Lỗi tạo tài khoản: " + regError.message);
+            });
+        } else {
+          alert("Lỗi đăng nhập: " + error.message);
+        }
+      });
   }
+
+  // Đăng nhập bằng Google
   handleGoogleLogin() {
-    this.user.name = "Nguyễn Minh Anh (Google)";
-    this.user.email = "minhanh.vn@gmail.com";
-    this.saveStateToStorage();
-    this.closeLoginModal();
-    document.getElementById("userNameDisplay").textContent = this.user.name;
-    document.getElementById("userEmailDisplay").textContent = this.user.email;
-    alert("Đăng nhập thành công qua tài khoản Google!");
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+      .then((result) => {
+        const user = result.user;
+        this.closeLoginModal();
+        alert(`Chào mừng ${user.displayName || user.email} đã đăng nhập thành công qua Google!`);
+      })
+      .catch((error) => {
+        console.error("Lỗi Google Auth:", error);
+        alert("Đăng nhập Google thất bại: " + error.message);
+      });
+  }
+
+  // Đăng xuất
+  handleLogout() {
+    auth.signOut()
+      .then(() => {
+        alert("Đã đăng xuất tài khoản thành công.");
+      })
+      .catch((err) => {
+        console.error("Lỗi đăng xuất:", err);
+      });
   }
 }
 
